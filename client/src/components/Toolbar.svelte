@@ -55,10 +55,30 @@
 {#if !isFullscreen}
 	<div class="toolbar">
 		<div class="toolbar__left">
-			<Volume />
+			{#if $currentUser && $currentUser.isAuthenticated}
+				<Tooltip text="Sign out">
+					<IconButton on:click={handleSignOut} on:keypress={handleKeypress(handleSignOut)}>
+						<svg style="width:24px;height:24px" viewBox="0 0 24 24">
+							<path
+								fill="currentColor"
+								d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" />
+						</svg>
+					</IconButton>
+				</Tooltip>
+			{:else}
+				<button class="sign-in-button" on:click={handleSignIn} on:keypress={handleKeypress(handleSignIn)}>
+					<svg style="width:24px;height:24px" viewBox="0 0 24 24">
+						<path
+							fill="currentColor"
+							d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z" />
+					</svg>
+					Sign in
+				</button>
+			{/if}
 		</div>
 		<Members />
 		<div class="toolbar__right">
+			<Volume />
 			<Tooltip text="Fullscreen">
 				<IconButton on:click={requestFullscreen} on:keypress={handleKeypress(requestFullscreen)}>
 					<svg style="width:24px;height:24px" viewBox="0 0 24 24">
@@ -83,26 +103,6 @@
 					</svg>
 				</IconButton>
 			</Tooltip>
-			{#if $currentUser && $currentUser.isAuthenticated}
-				<Tooltip text="Sign out">
-					<IconButton on:click={handleSignOut} on:keypress={handleKeypress(handleSignOut)}>
-						<svg style="width:24px;height:24px" viewBox="0 0 24 24">
-							<path
-								fill="currentColor"
-								d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" />
-						</svg>
-					</IconButton>
-				</Tooltip>
-			{:else}
-				<button class="sign-in-button" on:click={handleSignIn} on:keypress={handleKeypress(handleSignIn)}>
-					<svg style="width:24px;height:24px" viewBox="0 0 24 24">
-						<path
-							fill="currentColor"
-							d="M10,17V14H3V10H10V7L15,12L10,17M10,2H19A2,2 0 0,1 21,4V20A2,2 0 0,1 19,22H10A2,2 0 0,1 8,20V18H10V20H19V4H10V6H8V4A2,2 0 0,1 10,2Z" />
-					</svg>
-					Sign in
-				</button>
-			{/if}
 		</div>
 	</div>
 {/if}
@@ -111,7 +111,7 @@
 	.toolbar {
 		display: flex;
 		align-items: center;
-		padding: 4px;
+		padding: 4px 8px;
 	}
 
 	:global(.members) {
@@ -159,12 +159,11 @@
 	}
 
 	.sign-in-button {
-		height: 36px;
+		height: 40px;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		padding: 0 12px;
-		margin: 0 12px;
 		gap: 8px;
 	}
 </style>

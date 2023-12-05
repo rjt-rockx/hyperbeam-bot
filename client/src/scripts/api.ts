@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { get } from "svelte/store";
 
 import type RoomState from "../schemas/room";
-import { currentUser, extendedError, members, room, trackedCursor } from "../store";
+import { currentUser, extendedError, members, messages, room, trackedCursor } from "../store";
 
 const useSSL = import.meta.env.VITE_API_SERVER_BASE_URL.startsWith("https");
 const hostname = `${import.meta.env.VITE_API_SERVER_BASE_URL.split("://")[1]}`;
@@ -141,6 +141,10 @@ export async function join(url: string) {
 	});
 	roomInstance.onMessage("identify", (data: { id: string }) => {
 		currentUser.set(get(members).find((m) => m.id === data.id));
+	});
+	roomInstance.onMessage("discordMessageCreate", (data: any) => {
+		messages.update((currentMessages) => [...currentMessages, data]);
+		console.log("Received message", data);
 	});
 	roomInstance.onLeave(async (code) => {
 		if (code >= 1001 && code <= 1015) {

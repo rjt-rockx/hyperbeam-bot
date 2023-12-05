@@ -8,6 +8,7 @@ import database from "./classes/database";
 import { updateUser } from "./classes/discord";
 import { restartActiveSessions } from "./classes/sessions";
 import { BotClient } from "./types";
+import messageHandler from "./utils/messageHandler";
 
 dotenv.config({ path: path.join(__dirname, "../../.env") });
 
@@ -20,7 +21,7 @@ server.listen(port).then(async () => {
 });
 
 const client = new Client({
-	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
 	shards: "auto",
 }) as BotClient;
 client.db = database;
@@ -37,6 +38,7 @@ client.on("ready", () => {
 	setInterval(() => {
 		if (client.user) setActivity(client.user);
 	}, 3600 * 1000);
+	messageHandler.initialize(client);
 });
 
 const creator = new SlashCreator({

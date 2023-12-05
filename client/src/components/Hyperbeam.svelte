@@ -2,7 +2,6 @@
 	import Hyperbeam from "@hyperbeam/web";
 	import { onMount } from "svelte";
 	import {
-		currentUser,
 		extendedError,
 		hyperbeamEmbed,
 		members,

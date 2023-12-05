@@ -15,3 +15,5 @@ export const attemptSignIn = writable(false);
 
 export type ExtendedErrorType = { title: string; description: string; code?: number };
 export const extendedError = writable<ExtendedErrorType>();
+
+export const messages = writable<Array<any>>([]);

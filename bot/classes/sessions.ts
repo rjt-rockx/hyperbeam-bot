@@ -4,6 +4,7 @@ import { Client, matchMaker, ServerError } from "colyseus";
 import Cursor from "../schemas/cursor";
 import Member from "../schemas/member";
 import color, { swatches } from "../utils/color";
+import { addListener, removeListener } from "../utils/messageHandler";
 import TokenHandler from "../utils/tokenHandler";
 import db from "./database";
 import Hyperbeam, { HyperbeamSession, VMRequestBody } from "./hyperbeam";
@@ -14,6 +15,7 @@ export type StartSessionOptions = VMRequestBody & {
 	ownerId: string;
 	existingSession?: BotRoom["session"] & { members?: User[] };
 	password?: string;
+	messaging?: boolean;
 };
 
 type BaseContext = { room: BotRoom };
@@ -87,6 +89,7 @@ export async function startSession(ctx: BaseContext & { options: StartSessionOpt
 				const instance = await Hyperbeam.getSession(existingSession.sessionId);
 				if (instance.isTerminated) {
 					await endSession(existingSession.sessionId, instance.terminationDate);
+					await removeListener(existingSession.channelId, existingSession.url);
 					throw new ServerError(500, "Session is terminated");
 				}
 				ctx.room.session.instance = instance;
@@ -189,6 +192,7 @@ export async function disposeSession(ctx: BaseContext) {
 	if (!ctx.room.session) return;
 	await Hyperbeam.deleteSession(ctx.room.session.sessionId);
 	await endSession(ctx.room.session.sessionId);
+	await removeListener(ctx.room.session.channelId, ctx.room.roomId);
 }
 
 export async function getActiveSessions(ownerId?: string): Promise<(Session & { members: User[] })[]> {
@@ -204,6 +208,7 @@ export async function endAllSessions(ownerId?: string): Promise<(Session & { mem
 			const session = sessions[i];
 			const endedSession = await endSession(session.sessionId);
 			if (endedSession) sessions[i] = endedSession;
+			await removeListener(session.channelId, session.url);
 			await Hyperbeam.deleteSession(session.sessionId).catch(() => {});
 			await matchMaker.remoteRoomCall(session.url, "disconnect").catch(() => {});
 		} catch {
@@ -318,9 +323,11 @@ export async function restartActiveSessions(): Promise<Session[]> {
 							} as StartSessionOptions)
 							.then(() => restartedSessions.push(session))
 							.catch(() => {});
+						addListener(session.channelId, session.url);
 					} catch (e) {
 						console.error("Failed to create room", e);
 						await endSession(session.sessionId);
+						await removeListener(session.channelId, session.url);
 						return;
 					}
 				}

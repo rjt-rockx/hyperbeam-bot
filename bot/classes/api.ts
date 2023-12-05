@@ -19,6 +19,7 @@ const defaultAddresses = Object.values(networkInterfaces())
 			// Node < v18
 			((typeof detail.family === "string" && detail.family === "IPv4") ||
 				// Node >= v18
+				// @ts-expect-error
 				(typeof detail.family === "number" && detail.family === 4)),
 	)
 	.map((detail) => detail.address);

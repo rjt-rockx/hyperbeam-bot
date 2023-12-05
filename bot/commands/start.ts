@@ -4,6 +4,7 @@ import { CommandContext, CommandOptionType, SlashCommand, SlashCreator } from "s
 import db from "../classes/database";
 import { createSession, endAllSessions, StartSessionOptions } from "../classes/sessions";
 import { BotClient } from "../types";
+import { addListener } from "../utils/messageHandler";
 
 const regions = {
 	NA: "North America",
@@ -75,7 +76,10 @@ export default class Start extends SlashCommand<BotClient> {
 				options.nsfw = true;
 				features.push("NSFW");
 			}
+
 			const session = await createSession(options);
+			addListener(ctx.channelID, session.url);
+
 			await ctx.send({
 				embeds: [
 					{

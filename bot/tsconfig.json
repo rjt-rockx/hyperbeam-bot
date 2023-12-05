@@ -12,7 +12,8 @@
 		"allowSyntheticDefaultImports": true,
 		"experimentalDecorators": true,
 		"resolveJsonModule": true,
-		"moduleResolution": "node"
+		"moduleResolution": "node",
+		"skipLibCheck": true
 	},
 	"include": ["./**/*.ts", "./**/*.d.ts", "../env.d.ts", "../shared/*.ts", "../shared/*.d.ts"]
 }

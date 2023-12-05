@@ -57,12 +57,12 @@ export class BotRoom extends Room<RoomState> {
 		});
 	}
 
-	async onJoin(client: AuthenticatedClient) {
-		await joinSession({ room: this, client });
+	async onJoin(client) {
+		await joinSession({ room: this, client: client as AuthenticatedClient });
 	}
 
-	async onLeave(client: AuthenticatedClient) {
-		await leaveSession({ room: this, client });
+	async onLeave(client) {
+		await leaveSession({ room: this, client: client as AuthenticatedClient });
 	}
 
 	async onDispose() {
@@ -70,29 +70,28 @@ export class BotRoom extends Room<RoomState> {
 	}
 
 	async registerMessageHandlers() {
-		this.onMessage<{ type: "setCursor"; x: number; y: number }>(
-			"setCursor",
-			async (client: AuthenticatedClient, message) => {
-				setCursor({ room: this, client, x: message.x, y: message.y });
-			},
-		);
+		this.onMessage<{ type: "setCursor"; x: number; y: number }>("setCursor", async (client, message) => {
+			setCursor({ room: this, client: client as AuthenticatedClient, x: message.x, y: message.y });
+		});
 		this.onMessage<{ type: "setControl"; targetId: string; control: Member["control"] }>(
 			"setControl",
-			async (client: AuthenticatedClient, message) => {
-				setControl({ room: this, client, targetId: message.targetId, control: message.control });
+			async (client, message) => {
+				setControl({
+					room: this,
+					client: client as AuthenticatedClient,
+					targetId: message.targetId,
+					control: message.control,
+				});
 			},
 		);
-		this.onMessage<{ type: "connectHbUser"; hbId: string }>(
-			"connectHbUser",
-			async (client: AuthenticatedClient, message) => {
-				connectHbUser({ room: this, client, hbId: message.hbId });
-			},
-		);
+		this.onMessage<{ type: "connectHbUser"; hbId: string }>("connectHbUser", async (client, message) => {
+			connectHbUser({ room: this, client: client as AuthenticatedClient, hbId: message.hbId });
+		});
 		this.onMessage<{ type: "authenticateMemberPassword"; password: string }>(
 			"authenticateMemberPassword",
-			async (client: AuthenticatedClient, message) => {
+			async (client, message) => {
 				if (message.password === this.state.password) {
-					const target = this.state.members.get(client.userData.id);
+					const target = this.state.members.get((client as AuthenticatedClient).userData.id);
 					if (target) {
 						await this.session?.instance?.setPermissions(target.hbId!, { control_disabled: false });
 						target.control = "enabled";
